@@ -3,7 +3,7 @@ plugins {
     id 'io.freefair.lombok' version '8.6'
 }
 
-group = 'com.franchisetracker'
+group = 'com.github.loafabreadly.franchisetracker'
 version = '0.1.0'
 
 repositories {
@@ -20,4 +20,17 @@ dependencies {
 
 test {
     useJUnitPlatform()
+}
+
+jar {
+    manifest {
+        attributes(
+            'Main-Class': 'com.github.loafabreadly.franchisetracker.Main'
+        )
+    }
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
 }
