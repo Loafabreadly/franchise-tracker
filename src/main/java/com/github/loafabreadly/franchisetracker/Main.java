@@ -1,11 +1,8 @@
 package com.github.loafabreadly.franchisetracker;
 
-import com.github.loafabreadly.franchisetracker.model.*;
-import com.googlecode.lanterna.TerminalSize;
 import com.googlecode.lanterna.gui2.*;
 import com.googlecode.lanterna.screen.Screen;
 import com.googlecode.lanterna.terminal.DefaultTerminalFactory;
-import java.util.*;
 
 public class Main {
     public static void main(String[] args) throws Exception {

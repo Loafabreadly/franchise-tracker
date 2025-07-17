@@ -1,0 +1,30 @@
+# Java/Gradle
+/build/
+/.gradle/
+/out/
+/bin/
+*.class
+*.jar
+*.war
+*.ear
+
+# IDEs
+/.idea/
+*.iml
+*.ipr
+*.iws
+/.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Lombok
+lombok.config
+
+# Misc
+*.swp
+*.swo
