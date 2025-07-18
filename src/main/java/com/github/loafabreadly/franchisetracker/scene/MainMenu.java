@@ -1,5 +1,6 @@
 package com.github.loafabreadly.franchisetracker.scene;
 
+import java.util.ArrayList;
 import java.util.regex.Pattern;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -20,9 +21,8 @@ import com.googlecode.lanterna.terminal.DefaultTerminalFactory;
 
 public class MainMenu extends Panel {
     private static final Logger logger = LogManager.getLogger(MainMenu.class);
-
+    FranchiseTracker tracker = new FranchiseTracker();
     public void createMenu() {
-        FranchiseTracker tracker = new FranchiseTracker();
         DefaultTerminalFactory terminalFactory = new DefaultTerminalFactory();
         try {
             Screen screen = terminalFactory.createScreen();
@@ -39,26 +39,29 @@ public class MainMenu extends Panel {
             TextBox nhlTeamBox = new TextBox().setValidationPattern(Pattern.compile(".*")).setPreferredSize(new TerminalSize(30, 1));
             TextBox ahlTeamBox = new TextBox().setValidationPattern(Pattern.compile(".*")).setPreferredSize(new TerminalSize(30, 1));
             TextBox gmName = new TextBox().setValidationPattern(Pattern.compile(".*")).setPreferredSize(new TerminalSize(30, 1));
+            TextBox seasonBox = new TextBox().setValidationPattern(Pattern.compile("\\d{4}")).setPreferredSize(new TerminalSize(6, 1));
             createPanel.addComponent(new Label("NHL Team Name:"));
             createPanel.addComponent(nhlTeamBox);
             createPanel.addComponent(new Label("AHL Affiliate Name:"));
             createPanel.addComponent(ahlTeamBox);
             createPanel.addComponent(new Label("General Manager Name:"));
-            createPanel.addComponent(gmName); 
+            createPanel.addComponent(gmName);
+            createPanel.addComponent(new Label("Season to start on (Defaults to 2025):"));
+            createPanel.addComponent(seasonBox);
             Button createButton = new Button("Create", () -> {
                 String nhlTeam = nhlTeamBox.getText();
                 String ahlTeam = ahlTeamBox.getText();
-                tracker.createNewSave(nhlTeam, ahlTeam, null, null, gmName.getText());
-                // Prompt for filename to save
+                int season = seasonBox.getText().isEmpty() ? 2025 : Integer.parseInt(seasonBox.getText());
                 Panel savePanel = new Panel();
                 savePanel.setLayoutManager(new LinearLayout(Direction.VERTICAL));
                 TextBox fileNameBox = new TextBox().setValidationPattern(Pattern.compile(".*")).setPreferredSize(new TerminalSize(30, 1));
-                savePanel.addComponent(new Label("Enter filename to save (e.g., save.json):"));
+                savePanel.addComponent(new Label("Enter filename to save (e.g., mysave):"));
                 savePanel.addComponent(fileNameBox);
                 Button saveButton = new Button("Save", () -> {
-                    String fileName = fileNameBox.getText();
+                    tracker = new FranchiseTracker(nhlTeam, ahlTeam, new ArrayList<>(), new ArrayList<>(), gmName.getText(), season);
+                    String fileName = validateSaveName(fileNameBox.getText());
                     try {
-                        tracker.saveToFile(fileName);
+                        tracker.saveFranchise(fileName);
                         window.setTitle("Franchise Tracker");
                         window.setComponent(mainPanel);
                     } catch (Exception e) {
@@ -92,8 +95,8 @@ public class MainMenu extends Panel {
             loadPanel.addComponent(fileNameBox);
             Button loadButton = new Button("Load", () -> {
                 String fileName = validateSaveName(fileNameBox.getText());
-                try {
-                    tracker.loadFromFile(fileName);
+                try {                
+                    tracker = tracker.loadFranchise(fileName);
                     window.setTitle("Franchise Tracker - " + tracker.getSelectedNHLTeam().getName());
                     Panel gamePanel = new Game();
                     window.setComponent(gamePanel);

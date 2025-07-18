@@ -9,7 +9,7 @@ public class Team {
     private int overall;
     private List<Player> roster;
     private List<Award> awards;
-    private List<SeasonStats> seasonStats;
+    private List<TeamSeasonStats> seasonStats;
     private CareerStats careerStats;
     private Lineup lineup;
     private boolean isAHL;

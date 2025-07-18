@@ -10,7 +10,7 @@ public class Player {
     private String position;
     private String style;
     private List<String> xFactors;
-    private List<SeasonStats> seasonStats;
+    private List<PlayerSeasonStats> seasonStats;
     private CareerStats careerStats;
     private Contract contract;
 }

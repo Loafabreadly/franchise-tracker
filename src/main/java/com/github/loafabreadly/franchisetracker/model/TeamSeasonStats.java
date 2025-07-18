@@ -3,7 +3,7 @@ package com.github.loafabreadly.franchisetracker.model;
 import lombok.Data;
 
 @Data
-public class SeasonStats {
+public class TeamSeasonStats {
     private int year;
     private int gamesPlayed;
     private int goals;
