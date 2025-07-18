@@ -1,5 +1,6 @@
 package com.github.loafabreadly.franchisetracker.service;
 
+import com.github.loafabreadly.franchisetracker.FranchiseTracker;
 import com.github.loafabreadly.franchisetracker.model.Team;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -10,11 +11,11 @@ import java.util.List;
 public class FranchiseDataService {
     private static final ObjectMapper mapper = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT);
 
-    public static void saveTeams(List<Team> teams, String filePath) throws IOException {
-        mapper.writeValue(new File(filePath), teams);
+    public static void saveTeams(FranchiseTracker trackerToSave, String filePath) throws IOException {
+        mapper.writeValue(new File(filePath), trackerToSave);
     }
 
-    public static List<Team> loadTeams(String filePath) throws IOException {
-        return mapper.readValue(new File(filePath), mapper.getTypeFactory().constructCollectionType(List.class, Team.class));
+    public static FranchiseTracker loadTracker(String filePath) throws IOException {
+        return mapper.readValue(new File(filePath), FranchiseTracker.class);
     }
 }

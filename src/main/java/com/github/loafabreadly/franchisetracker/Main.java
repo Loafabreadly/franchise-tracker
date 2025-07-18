@@ -25,18 +25,41 @@ public class Main {
             createPanel.setLayoutManager(new LinearLayout(Direction.VERTICAL));
             TextBox nhlTeamBox = new TextBox().setValidationPattern(Pattern.compile(".*")).setPreferredSize(new TerminalSize(30, 1));
             TextBox ahlTeamBox = new TextBox().setValidationPattern(Pattern.compile(".*")).setPreferredSize(new TerminalSize(30, 1));
+            TextBox gmName = new TextBox().setValidationPattern(Pattern.compile(".*")).setPreferredSize(new TerminalSize(30, 1));
             createPanel.addComponent(new Label("NHL Team Name:"));
             createPanel.addComponent(nhlTeamBox);
             createPanel.addComponent(new Label("AHL Affiliate Name:"));
             createPanel.addComponent(ahlTeamBox);
-            // You can add more fields for initial roster, draft picks, etc. here
+            createPanel.addComponent(new Label("General Manager Name:"));
+            createPanel.addComponent(gmName); 
             Button createButton = new Button("Create", () -> {
                 String nhlTeam = nhlTeamBox.getText();
                 String ahlTeam = ahlTeamBox.getText();
-                // For now, create with empty roster and draft picks
-                tracker.createNewSave(nhlTeam, ahlTeam, new ArrayList<>(), new ArrayList<>());
-                window.setTitle("Franchise Tracker");
-                window.setComponent(mainPanel);
+                tracker.createNewSave(nhlTeam, ahlTeam, null, null, gmName.getText());
+                // Prompt for filename to save
+                Panel savePanel = new Panel();
+                savePanel.setLayoutManager(new LinearLayout(Direction.VERTICAL));
+                TextBox fileNameBox = new TextBox().setValidationPattern(Pattern.compile(".*")).setPreferredSize(new TerminalSize(30, 1));
+                savePanel.addComponent(new Label("Enter filename to save (e.g., save.json):"));
+                savePanel.addComponent(fileNameBox);
+                Button saveButton = new Button("Save", () -> {
+                    String fileName = fileNameBox.getText();
+                    try {
+                        tracker.saveToFile(fileName);
+                        window.setTitle("Franchise Tracker");
+                        window.setComponent(mainPanel);
+                    } catch (Exception e) {
+                        savePanel.addComponent(new Label("Error saving: " + e.getMessage()));
+                    }
+                });
+                Button backButton2 = new Button("Back", () -> {
+                    window.setTitle("Franchise Tracker");
+                    window.setComponent(mainPanel);
+                });
+                savePanel.addComponent(saveButton);
+                savePanel.addComponent(backButton2);
+                window.setTitle("Save Franchise");
+                window.setComponent(savePanel);
             });
             Button backButton = new Button("Back", () -> {
                 window.setTitle("Franchise Tracker");
@@ -63,12 +86,54 @@ public class Main {
             window.setTitle("Enter End of Season Stats");
         }));
         mainPanel.addComponent(new Button("Save Franchise", () -> {
-            // TODO: Implement save logic
             window.setTitle("Save Franchise");
+            Panel savePanel = new Panel();
+            savePanel.setLayoutManager(new LinearLayout(Direction.VERTICAL));
+            TextBox fileNameBox = new TextBox().setValidationPattern(Pattern.compile(".*")).setPreferredSize(new TerminalSize(30, 1));
+            savePanel.addComponent(new Label("Enter filename to save (e.g., save.json):"));
+            savePanel.addComponent(fileNameBox);
+            Button saveButton = new Button("Save", () -> {
+                String fileName = fileNameBox.getText();
+                try {
+                    tracker.saveToFile(fileName);
+                    window.setTitle("Franchise Tracker");
+                    window.setComponent(mainPanel);
+                } catch (Exception e) {
+                    savePanel.addComponent(new Label("Error saving: " + e.getMessage()));
+                }
+            });
+            Button backButton = new Button("Back", () -> {
+                window.setTitle("Franchise Tracker");
+                window.setComponent(mainPanel);
+            });
+            savePanel.addComponent(saveButton);
+            savePanel.addComponent(backButton);
+            window.setComponent(savePanel);
         }));
         mainPanel.addComponent(new Button("Load Franchise", () -> {
-            // TODO: Implement load logic
             window.setTitle("Load Franchise");
+            Panel loadPanel = new Panel();
+            loadPanel.setLayoutManager(new LinearLayout(Direction.VERTICAL));
+            TextBox fileNameBox = new TextBox().setValidationPattern(Pattern.compile(".*")).setPreferredSize(new TerminalSize(30, 1));
+            loadPanel.addComponent(new Label("Enter filename to load (e.g., save.json):"));
+            loadPanel.addComponent(fileNameBox);
+            Button loadButton = new Button("Load", () -> {
+                String fileName = fileNameBox.getText();
+                try {
+                    tracker.loadFromFile(fileName);
+                    window.setTitle("Franchise Tracker");
+                    window.setComponent(mainPanel);
+                } catch (Exception e) {
+                    loadPanel.addComponent(new Label("Error loading: " + e.getMessage()));
+                }
+            });
+            Button backButton = new Button("Back", () -> {
+                window.setTitle("Franchise Tracker");
+                window.setComponent(mainPanel);
+            });
+            loadPanel.addComponent(loadButton);
+            loadPanel.addComponent(backButton);
+            window.setComponent(loadPanel);
         }));
         mainPanel.addComponent(new Button("Exit", window::close));
 
