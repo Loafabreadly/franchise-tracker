@@ -2,9 +2,13 @@ package com.github.loafabreadly.franchisetracker;
 
 import com.github.loafabreadly.franchisetracker.model.*;
 import com.github.loafabreadly.franchisetracker.service.FranchiseDataService;
+
+import lombok.Data;
+
 import java.util.*;
 import java.io.IOException;
 
+@Data
 public class FranchiseTracker {
     private List<Team> teams = new ArrayList<>();
     private Team selectedNHLTeam;

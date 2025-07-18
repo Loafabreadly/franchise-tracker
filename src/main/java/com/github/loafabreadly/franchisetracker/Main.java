@@ -3,6 +3,7 @@ package com.github.loafabreadly.franchisetracker;
 import com.googlecode.lanterna.gui2.*;
 import com.googlecode.lanterna.screen.Screen;
 import com.googlecode.lanterna.terminal.DefaultTerminalFactory;
+import com.github.loafabreadly.franchisetracker.scene.Game;
 import com.googlecode.lanterna.TerminalSize;
 import java.util.*;
 import java.util.regex.Pattern;
@@ -69,47 +70,6 @@ public class Main {
             createPanel.addComponent(backButton);
             window.setComponent(createPanel);
         }));
-        mainPanel.addComponent(new Button("Edit Roster", () -> {
-            // TODO: Implement edit roster logic
-            window.setTitle("Edit Roster");
-        }));
-        mainPanel.addComponent(new Button("Set Draft Picks", () -> {
-            // TODO: Implement set draft picks logic
-            window.setTitle("Set Draft Picks");
-        }));
-        mainPanel.addComponent(new Button("View/Edit Lines", () -> {
-            // TODO: Implement view/edit lines logic
-            window.setTitle("View/Edit Lines");
-        }));
-        mainPanel.addComponent(new Button("Enter End of Season Stats", () -> {
-            // TODO: Implement enter stats logic
-            window.setTitle("Enter End of Season Stats");
-        }));
-        mainPanel.addComponent(new Button("Save Franchise", () -> {
-            window.setTitle("Save Franchise");
-            Panel savePanel = new Panel();
-            savePanel.setLayoutManager(new LinearLayout(Direction.VERTICAL));
-            TextBox fileNameBox = new TextBox().setValidationPattern(Pattern.compile(".*")).setPreferredSize(new TerminalSize(30, 1));
-            savePanel.addComponent(new Label("Enter filename to save (e.g., save.json):"));
-            savePanel.addComponent(fileNameBox);
-            Button saveButton = new Button("Save", () -> {
-                String fileName = fileNameBox.getText();
-                try {
-                    tracker.saveToFile(fileName);
-                    window.setTitle("Franchise Tracker");
-                    window.setComponent(mainPanel);
-                } catch (Exception e) {
-                    savePanel.addComponent(new Label("Error saving: " + e.getMessage()));
-                }
-            });
-            Button backButton = new Button("Back", () -> {
-                window.setTitle("Franchise Tracker");
-                window.setComponent(mainPanel);
-            });
-            savePanel.addComponent(saveButton);
-            savePanel.addComponent(backButton);
-            window.setComponent(savePanel);
-        }));
         mainPanel.addComponent(new Button("Load Franchise", () -> {
             window.setTitle("Load Franchise");
             Panel loadPanel = new Panel();
@@ -121,8 +81,9 @@ public class Main {
                 String fileName = fileNameBox.getText();
                 try {
                     tracker.loadFromFile(fileName);
-                    window.setTitle("Franchise Tracker");
-                    window.setComponent(mainPanel);
+                    window.setTitle("Franchise Tracker - " + tracker.getSelectedNHLTeam().getName());
+                    Panel gamePanel = new Game();
+                    window.setComponent(gamePanel);
                 } catch (Exception e) {
                     loadPanel.addComponent(new Label("Error loading: " + e.getMessage()));
                 }
@@ -140,5 +101,14 @@ public class Main {
         window.setComponent(mainPanel);
         textGUI.addWindowAndWait(window);
         screen.stopScreen();
+    }
+
+    private String validateSaveName(String fileName) {
+        if (fileName.endsWith(".json")) {
+            return fileName;
+        }
+        else {
+            return fileName + ".json"; // Append .json if not present
+        }
     }
 }
