@@ -41,7 +41,7 @@ public class FranchiseTracker {
         selectedAHLTeam = new Team();
         selectedAHLTeam.setName(ahlTeamName);
         selectedAHLTeam.setRoster(new ArrayList<>());
-        selectedAHLTeam.setAwards(new ArrayList<>());
+        selectedAHLTeam.setAwards(leagueAwards);
         selectedAHLTeam.setSeasonStats(new ArrayList<>());
         selectedAHLTeam.setCareerStats(new CareerStats());
         selectedAHLTeam.setLineup(new Lineup());
