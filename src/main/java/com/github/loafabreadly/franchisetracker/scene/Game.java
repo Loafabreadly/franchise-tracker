@@ -5,6 +5,7 @@ import java.util.regex.Pattern;
 import org.apache.logging.log4j.Logger;
 
 import com.github.loafabreadly.franchisetracker.FranchiseTracker;
+import com.github.loafabreadly.franchisetracker.Utils;
 import com.googlecode.lanterna.TerminalSize;
 import com.googlecode.lanterna.gui2.BasicWindow;
 import com.googlecode.lanterna.gui2.Button;
@@ -15,11 +16,13 @@ import com.googlecode.lanterna.gui2.Panel;
 import com.googlecode.lanterna.gui2.TextBox;
 import com.googlecode.lanterna.screen.Screen;
 
+
 public class Game extends Panel {
     
     public Game(FranchiseTracker tracker, Screen screen, BasicWindow window, Logger logger) {
         setLayoutManager(new LinearLayout(Direction.VERTICAL));
         addComponent(new Label("Game Scene"));
+        window.setTitle("Franchise Tracker - " + tracker.getSelectedNHLTeam().getName());
                
         addComponent(new Button("Enter end of season stats", () -> {
             // Logic to enter end of season stats
@@ -60,7 +63,7 @@ public class Game extends Panel {
             savePanel.addComponent(new Label("Enter filename to save (e.g., save.json):"));
             savePanel.addComponent(fileNameBox);
              Button saveButton = new Button("Save", () -> {
-                String fileName = fileNameBox.getText();
+                String fileName = Utils.validateSaveName(fileNameBox.getText());
                 try {
                     tracker.saveFranchise(fileName);
                     window.setTitle("Franchise Tracker");

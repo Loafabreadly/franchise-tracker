@@ -6,6 +6,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.github.loafabreadly.franchisetracker.FranchiseTracker;
+import com.github.loafabreadly.franchisetracker.Utils;
 import com.googlecode.lanterna.TerminalSize;
 import com.googlecode.lanterna.gui2.BasicWindow;
 import com.googlecode.lanterna.gui2.Button;
@@ -61,7 +62,7 @@ public class MainMenu extends Panel {
                 savePanel.addComponent(fileNameBox);
                 Button saveButton = new Button("Save", () -> {
                     tracker = new FranchiseTracker(nhlTeam, ahlTeam, new ArrayList<>(), new ArrayList<>(), gmName.getText(), season);
-                    String fileName = validateSaveName(fileNameBox.getText());
+                    String fileName = Utils.validateSaveName(fileNameBox.getText());
                     try {
                         tracker.saveFranchise(fileName);
                         window.setTitle("Franchise Tracker");
@@ -95,7 +96,7 @@ public class MainMenu extends Panel {
             loadPanel.addComponent(new Label("Enter filename to load (e.g., save.json):"));
             loadPanel.addComponent(fileNameBox);
             Button loadButton = new Button("Load", () -> {
-                String fileName = validateSaveName(fileNameBox.getText());
+                String fileName = Utils.validateSaveName(fileNameBox.getText());
                 try {                
                     tracker = tracker.loadFranchise(fileName);
                     window.setTitle("Franchise Tracker - " + tracker.getSelectedNHLTeam().getName());
@@ -132,14 +133,4 @@ public class MainMenu extends Panel {
             return null;
         }
     }
-
-    private static String validateSaveName(String fileName) {
-        if (fileName.endsWith(".json")) {
-            return fileName;
-        }
-        else {
-            return fileName + ".json"; // Append .json if not present
-        }
-    }
-
 }
