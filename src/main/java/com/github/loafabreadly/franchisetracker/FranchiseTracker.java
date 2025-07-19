@@ -15,7 +15,7 @@ public class FranchiseTracker {
     private Team selectedAHLTeam;
     private int currentSeason;
     private String generalManagerName;
-    private List<DraftPick> draftPicks = new ArrayList<>();
+    private List<DraftedPlayer> draftPicks = new ArrayList<>();
     private List<Award> leagueAwards = new ArrayList<>();
     private List<TeamSeasonStats> playerStats = new ArrayList<>();
     private TeamSeasonStats teamStats;
@@ -25,44 +25,30 @@ public class FranchiseTracker {
 
     }
 
-    public FranchiseTracker (String nhlTeamName, String ahlTeamName, List<Player> initialRoster, List<DraftPick> draftPicks, String generalManagerName, int currentSeason) {
+    public FranchiseTracker (String nhlTeamName, String ahlTeamName, List<Player> initialRoster, List<DraftedPlayer> draftPicks, String generalManagerName, int currentSeason) {
         selectedNHLTeam = new Team();
         selectedNHLTeam.setName(nhlTeamName);
         selectedNHLTeam.setRoster(initialRoster);
         selectedNHLTeam.setAwards(new ArrayList<>());
-        selectedNHLTeam.setSeasonStats(new ArrayList<>());
-        selectedNHLTeam.setCareerStats(new CareerStats());
+        selectedNHLTeam.setCareerStats(new ArrayList<>());
         selectedNHLTeam.setLineup(new Lineup());
         selectedNHLTeam.setIsAHL(false);
+        selectedNHLTeam.setDraftPicks(new ArrayList<>());
         this.generalManagerName = generalManagerName;
-        this.draftPicks = draftPicks;
         this.currentSeason = currentSeason;
 
         selectedAHLTeam = new Team();
         selectedAHLTeam.setName(ahlTeamName);
         selectedAHLTeam.setRoster(new ArrayList<>());
-        selectedAHLTeam.setAwards(leagueAwards);
-        selectedAHLTeam.setSeasonStats(new ArrayList<>());
-        selectedAHLTeam.setCareerStats(new CareerStats());
+        selectedAHLTeam.setAwards(new ArrayList<>());
+        selectedAHLTeam.setCareerStats(new ArrayList<>());
         selectedAHLTeam.setLineup(new Lineup());
         selectedAHLTeam.setIsAHL(true);
+        selectedAHLTeam.setDraftPicks(new ArrayList<>());
 
         teams.clear();
         teams.add(selectedNHLTeam);
         teams.add(selectedAHLTeam);
-    }
-
-    public void setDraftPicks(List<DraftPick> draftPicks) {
-        // Attach draft picks to NHL team for the current season
-        // You may want to add a draftPicks field to Team or FranchiseTracker
-    }
-
-    public void displayLines(String preset) {
-        // Display lines based on preset (highest overall, youngest, etc.)
-    }
-
-    public void editLines(Lineup newLineup) {
-        selectedNHLTeam.setLineup(newLineup);
     }
 
     public void enterEndOfSeasonStats(List<TeamSeasonStats> playerStats, TeamSeasonStats teamStats, List<Award> leagueAwards) {

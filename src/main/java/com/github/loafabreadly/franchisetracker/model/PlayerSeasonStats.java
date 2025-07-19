@@ -13,6 +13,9 @@ public class PlayerSeasonStats {
     private int penaltyMinutes;
     private int wins;
     private int losses;
+    private int overtimeLosses;
     private int shutouts;
+    private int save_percentage;
+    private int goalsAgainstAverage;
     // Add more as needed for skaters/goalies
 }

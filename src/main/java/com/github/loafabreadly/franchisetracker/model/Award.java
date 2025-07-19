@@ -20,7 +20,13 @@ public class Award {
         TED_LINDSEY_AWARD,
         KING_CLANCY_TROPHY
     }
+    public enum AwardCategory {
+        TEAM,
+        PLAYER
+    }
     private int year;
-    private String recipientType; // Player or Team
-    private String recipientName;
+    private AwardCategory recipientType; // Player or Team
+    private Player player;
+    private Team team;
+    private AwardType award;
 }

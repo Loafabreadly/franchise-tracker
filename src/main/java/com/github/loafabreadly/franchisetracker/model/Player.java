@@ -5,12 +5,12 @@ import java.util.List;
 
 @Data
 public class Player {
-    private String name;
+    private String firstName;
+    private String lastName;
     private int overall;
-    private String position;
-    private String style;
-    private List<String> xFactors;
-    private List<PlayerSeasonStats> seasonStats;
-    private CareerStats careerStats;
+    private PLAYER_POS position;
+    private PLAYER_STYLE style;
+    private List<PLAYER_XFACTORS> xFactors;
+    private List<PlayerSeasonStats> careerStats;
     private Contract contract;
 }

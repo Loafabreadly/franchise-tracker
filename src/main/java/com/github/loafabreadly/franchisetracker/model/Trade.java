@@ -1,16 +1,18 @@
 package com.github.loafabreadly.franchisetracker.model;
 
+import java.util.Date;
+
 import lombok.Data;
 
 @Data
 public class Trade {
-    private String team1;
-    private String team2;
-    private String playerInvolved;
+    private Team team1;
+    private Team team2;
+    private Player playerInvolved;
     private String draftPickInvolved;
-    private String tradeDate;
+    private Date tradeDate;
 
-    public Trade(String team1, String team2, String playerInvolved, String draftPickInvolved, String tradeDate) {
+    public Trade(Team team1, Team team2, Player playerInvolved, String draftPickInvolved, Date tradeDate) {
         this.team1 = team1;
         this.team2 = team2;
         this.playerInvolved = playerInvolved;
