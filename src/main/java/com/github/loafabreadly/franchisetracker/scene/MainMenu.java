@@ -20,9 +20,11 @@ import com.googlecode.lanterna.terminal.DefaultTerminalFactory;
 
 
 public class MainMenu extends Panel {
+
     private static final Logger logger = LogManager.getLogger(MainMenu.class);
-    FranchiseTracker tracker = new FranchiseTracker();
-    public void createMenu() {
+    static FranchiseTracker tracker = new FranchiseTracker();
+
+    public static Panel createMenu() {
         DefaultTerminalFactory terminalFactory = new DefaultTerminalFactory();
         try {
             Screen screen = terminalFactory.createScreen();
@@ -63,19 +65,18 @@ public class MainMenu extends Panel {
                     try {
                         tracker.saveFranchise(fileName);
                         window.setTitle("Franchise Tracker");
-                        window.setComponent(mainPanel);
+                        window.setComponent(new Game(tracker, screen, window, logger));
                     } catch (Exception e) {
                         logger.error("Error saving: ", e);
                         savePanel.addComponent(new Label("Error saving: " + e.getMessage()));
                     }
                 });
-                Button backButton2 = new Button("Back", () -> {
+                Button backButton = new Button("Back", () -> {
                     window.setTitle("Franchise Tracker");
                     window.setComponent(mainPanel);
                 });
                 savePanel.addComponent(saveButton);
-                savePanel.addComponent(backButton2);
-                window.setTitle("Save Franchise");
+                savePanel.addComponent(backButton);
                 window.setComponent(savePanel);
             });
             Button backButton = new Button("Back", () -> {
@@ -98,7 +99,7 @@ public class MainMenu extends Panel {
                 try {                
                     tracker = tracker.loadFranchise(fileName);
                     window.setTitle("Franchise Tracker - " + tracker.getSelectedNHLTeam().getName());
-                    Panel gamePanel = new Game();
+                    Panel gamePanel = new Game(tracker, screen, window, logger);
                     window.setComponent(gamePanel);
                 } catch (Exception e) {
                     logger.error("Error loading: ", e);
@@ -125,12 +126,14 @@ public class MainMenu extends Panel {
         MultiWindowTextGUI textGUI = new MultiWindowTextGUI(screen);
         window.setComponent(mainPanel);
         textGUI.addWindowAndWait(window);
+        return mainPanel;
         } catch (Exception e) {
             logger.error("Exception during screen creation: ", e);
+            return null;
         }
     }
 
-    private String validateSaveName(String fileName) {
+    private static String validateSaveName(String fileName) {
         if (fileName.endsWith(".json")) {
             return fileName;
         }

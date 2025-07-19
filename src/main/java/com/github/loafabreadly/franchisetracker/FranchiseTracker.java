@@ -11,8 +11,8 @@ import java.io.IOException;
 @Data
 public class FranchiseTracker {
     private List<Team> teams = new ArrayList<>();
-    private Team selectedNHLTeam;
-    private Team selectedAHLTeam;
+    private transient Team selectedNHLTeam;
+    private transient Team selectedAHLTeam;
     private int currentSeason;
     private String generalManagerName;
     private List<DraftedPlayer> draftPicks = new ArrayList<>();
@@ -55,7 +55,7 @@ public class FranchiseTracker {
         // Update player, team, and league stats for the season
     }
 
-    public void saveFranchise( String filePath) throws IOException {
+    public void saveFranchise(String filePath) throws IOException {
         FranchiseDataService.saveTeams(this, filePath);
     }
 
