@@ -20,11 +20,19 @@ import com.googlecode.lanterna.screen.Screen;
 import com.googlecode.lanterna.terminal.DefaultTerminalFactory;
 
 
+/**
+ * MainMenu provides the main menu UI for the Franchise Tracker application.
+ * Handles creation, loading, and exiting of franchise saves.
+ */
 public class MainMenu extends Panel {
 
     private static final Logger logger = LogManager.getLogger(MainMenu.class);
     static FranchiseTracker tracker = new FranchiseTracker();
 
+    /**
+     * Creates and displays the main menu panel for the application.
+     * @return The main menu panel
+     */
     public static Panel createMenu() {
         DefaultTerminalFactory terminalFactory = new DefaultTerminalFactory();
         try {
@@ -97,6 +105,7 @@ public class MainMenu extends Panel {
             if (nhlFiles != null && nhlFiles.length > 0) {
                 for (java.io.File file : nhlFiles) {
                     loadPanel.addComponent(new Button(file.getName(), () -> {
+                        logger.error("Loading franchise from file: " + file.getName());
                         try {
                             tracker = tracker.loadFranchise(file.getName());
                             window.setTitle("Franchise Tracker - " + tracker.getSelectedNHLTeam().getName());
