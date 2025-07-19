@@ -58,7 +58,7 @@ public class MainMenu extends Panel {
                 Panel savePanel = new Panel();
                 savePanel.setLayoutManager(new LinearLayout(Direction.VERTICAL));
                 TextBox fileNameBox = new TextBox().setValidationPattern(Pattern.compile(".*")).setPreferredSize(new TerminalSize(30, 1));
-                savePanel.addComponent(new Label("Enter filename to save (e.g., mysave):"));
+                savePanel.addComponent(new Label("Enter filename to save (e.g., my-save):"));
                 savePanel.addComponent(fileNameBox);
                 Button saveButton = new Button("Save", () -> {
                     tracker = new FranchiseTracker(nhlTeam, ahlTeam, new ArrayList<>(), new ArrayList<>(), gmName.getText(), season);
@@ -92,26 +92,29 @@ public class MainMenu extends Panel {
             window.setTitle("Load Franchise");
             Panel loadPanel = new Panel();
             loadPanel.setLayoutManager(new LinearLayout(Direction.VERTICAL));
-            TextBox fileNameBox = new TextBox().setValidationPattern(Pattern.compile(".*")).setPreferredSize(new TerminalSize(30, 1));
-            loadPanel.addComponent(new Label("Enter filename to load (e.g., save.json):"));
-            loadPanel.addComponent(fileNameBox);
-            Button loadButton = new Button("Load", () -> {
-                String fileName = Utils.validateSaveName(fileNameBox.getText());
-                try {                
-                    tracker = tracker.loadFranchise(fileName);
-                    window.setTitle("Franchise Tracker - " + tracker.getSelectedNHLTeam().getName());
-                    Panel gamePanel = new Game(tracker, screen, window, logger);
-                    window.setComponent(gamePanel);
-                } catch (Exception e) {
-                    logger.error("Error loading: ", e);
-                    loadPanel.addComponent(new Label("Error loading: " + e.getMessage()));
+            java.io.File dir = new java.io.File(System.getProperty("user.dir"));
+            java.io.File[] nhlFiles = dir.listFiles((d, name) -> name.endsWith(".nhl"));
+            if (nhlFiles != null && nhlFiles.length > 0) {
+                for (java.io.File file : nhlFiles) {
+                    loadPanel.addComponent(new Button(file.getName(), () -> {
+                        try {
+                            tracker = tracker.loadFranchise(file.getName());
+                            window.setTitle("Franchise Tracker - " + tracker.getSelectedNHLTeam().getName());
+                            Panel gamePanel = new Game(tracker, screen, window, logger);
+                            window.setComponent(gamePanel);
+                        } catch (Exception e) {
+                            logger.error("Error loading: ", e);
+                            loadPanel.addComponent(new Label("Error loading: " + e.getMessage()));
+                        }
+                    }));
                 }
-            });
+            } else {
+                loadPanel.addComponent(new Label("No .nhl save files found in this directory."));
+            }
             Button backButton = new Button("Back", () -> {
                 window.setTitle("Franchise Tracker");
                 window.setComponent(mainPanel);
             });
-            loadPanel.addComponent(loadButton);
             loadPanel.addComponent(backButton);
             window.setComponent(loadPanel);
         }));
