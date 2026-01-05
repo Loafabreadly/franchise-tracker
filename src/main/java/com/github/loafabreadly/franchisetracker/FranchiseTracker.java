@@ -87,13 +87,107 @@ public class FranchiseTracker {
     }
 
     /**
-     * Loads a franchise state from a file.
+     * Loads a franchise state from a file and restores transient team references.
      * @param filePath Path to the file to load from
      * @return Loaded FranchiseTracker instance
      * @throws IOException if loading fails
      */
     public FranchiseTracker loadFranchise(String filePath) throws IOException {
         FranchiseTracker loadedTracker = FranchiseDataService.loadTracker(filePath);
+        loadedTracker.restoreTeamReferences();
         return loadedTracker;
+    }
+
+    /**
+     * Restores transient team references from the teams list after deserialization.
+     */
+    private void restoreTeamReferences() {
+        for (Team team : teams) {
+            if (team.isAHL()) {
+                selectedAHLTeam = team;
+            } else {
+                selectedNHLTeam = team;
+            }
+        }
+    }
+
+    /**
+     * Advances the franchise to the next season.
+     */
+    public void advanceSeason() {
+        currentSeason++;
+    }
+
+    /**
+     * Adds a player to the NHL team roster.
+     * @param player The player to add
+     */
+    public void addPlayerToNHL(Player player) {
+        if (selectedNHLTeam != null && selectedNHLTeam.getRoster() != null) {
+            selectedNHLTeam.getRoster().add(player);
+        }
+    }
+
+    /**
+     * Adds a player to the AHL team roster.
+     * @param player The player to add
+     */
+    public void addPlayerToAHL(Player player) {
+        if (selectedAHLTeam != null && selectedAHLTeam.getRoster() != null) {
+            selectedAHLTeam.getRoster().add(player);
+        }
+    }
+
+    /**
+     * Removes a player from the NHL team roster.
+     * @param player The player to remove
+     */
+    public void removePlayerFromNHL(Player player) {
+        if (selectedNHLTeam != null && selectedNHLTeam.getRoster() != null) {
+            selectedNHLTeam.getRoster().remove(player);
+        }
+    }
+
+    /**
+     * Removes a player from the AHL team roster.
+     * @param player The player to remove
+     */
+    public void removePlayerFromAHL(Player player) {
+        if (selectedAHLTeam != null && selectedAHLTeam.getRoster() != null) {
+            selectedAHLTeam.getRoster().remove(player);
+        }
+    }
+
+    /**
+     * Moves a player from the NHL roster to the AHL roster.
+     * @param player The player to send down
+     */
+    public void sendPlayerToAHL(Player player) {
+        removePlayerFromNHL(player);
+        addPlayerToAHL(player);
+    }
+
+    /**
+     * Moves a player from the AHL roster to the NHL roster.
+     * @param player The player to call up
+     */
+    public void callUpPlayerFromAHL(Player player) {
+        removePlayerFromAHL(player);
+        addPlayerToNHL(player);
+    }
+
+    /**
+     * Gets all players from both NHL and AHL rosters.
+     * @return Combined list of all players
+     */
+    public List<Player> getAllPlayers() {
+        List<Player> allPlayers = new ArrayList<>();
+        if (selectedNHLTeam != null && selectedNHLTeam.getRoster() != null) {
+            allPlayers.addAll(selectedNHLTeam.getRoster());
+        }
+        if (selectedAHLTeam != null && selectedAHLTeam.getRoster() != null) {
+            allPlayers.addAll(selectedAHLTeam.getRoster());
+        }
+        return allPlayers;
     }
 }

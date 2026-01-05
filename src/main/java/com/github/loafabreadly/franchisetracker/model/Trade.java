@@ -12,6 +12,12 @@ public class Trade {
     private String draftPickInvolved;
     private Date tradeDate;
 
+    /**
+     * Default constructor for JSON deserialization.
+     */
+    public Trade() {
+    }
+
     public Trade(Team team1, Team team2, Player playerInvolved, String draftPickInvolved, Date tradeDate) {
         this.team1 = team1;
         this.team2 = team2;
