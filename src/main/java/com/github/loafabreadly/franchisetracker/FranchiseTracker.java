@@ -1,5 +1,6 @@
 package com.github.loafabreadly.franchisetracker;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.github.loafabreadly.franchisetracker.model.*;
 import com.github.loafabreadly.franchisetracker.service.FranchiseDataService;
 
@@ -13,6 +14,7 @@ import java.io.IOException;
  * Provides methods for saving and loading franchise data.
  */
 @Data
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class FranchiseTracker {
     private List<Team> teams = new ArrayList<>();
     private transient Team selectedNHLTeam;
@@ -24,12 +26,26 @@ public class FranchiseTracker {
     private List<TeamSeasonStats> playerStats = new ArrayList<>();
     private TeamSeasonStats teamStats;
     private List<Trade> trades = new ArrayList<>();
+    
+    // Season archiving
+    private List<SeasonSnapshot> seasonHistory = new ArrayList<>();
+    
+    // Cap management
+    private double capCeiling = 88.0; // Default NHL cap ceiling in millions
+    private double capFloor = 65.0;
+    
+    // Future draft picks inventory
+    private List<DraftPick> futureDraftPicks = new ArrayList<>();
+    
+    // Franchise completion status
+    private boolean franchiseCompleted = false;
+    private int franchiseCompletedSeason;
 
     /**
      * Default constructor for FranchiseTracker.
      */
     public FranchiseTracker() {
-
+        initializeFutureDraftPicks();
     }
 
     /**
@@ -65,6 +81,27 @@ public class FranchiseTracker {
         teams.clear();
         teams.add(selectedNHLTeam);
         teams.add(selectedAHLTeam);
+        
+        initializeFutureDraftPicks();
+    }
+    
+    /**
+     * Initializes future draft picks for the next 5 years.
+     */
+    private void initializeFutureDraftPicks() {
+        if (futureDraftPicks == null) {
+            futureDraftPicks = new ArrayList<>();
+        }
+        if (futureDraftPicks.isEmpty()) {
+            for (int year = currentSeason; year <= currentSeason + 5; year++) {
+                for (int round = 1; round <= 7; round++) {
+                    DraftPick pick = new DraftPick(year, round);
+                    pick.setCurrentOwner(selectedNHLTeam != null ? selectedNHLTeam.getName() : "Own");
+                    pick.setOriginalTeam(selectedNHLTeam != null ? selectedNHLTeam.getName() : "Own");
+                    futureDraftPicks.add(pick);
+                }
+            }
+        }
     }
 
     /**
@@ -115,7 +152,210 @@ public class FranchiseTracker {
      * Advances the franchise to the next season.
      */
     public void advanceSeason() {
+        // Archive current season before advancing
+        archiveSeason();
+        
+        // Decrement contract years and age players
+        decrementContractYears();
+        agePlayersOneYear();
+        
+        // Add new draft picks for the future
+        addFutureDraftPicks(currentSeason + 6);
+        
         currentSeason++;
+    }
+    
+    /**
+     * Archives the current season state to history.
+     */
+    public void archiveSeason() {
+        List<Player> nhlRoster = selectedNHLTeam != null && selectedNHLTeam.getRoster() != null 
+            ? new ArrayList<>(selectedNHLTeam.getRoster()) : new ArrayList<>();
+        List<Player> ahlRoster = selectedAHLTeam != null && selectedAHLTeam.getRoster() != null 
+            ? new ArrayList<>(selectedAHLTeam.getRoster()) : new ArrayList<>();
+        
+        List<Award> seasonAwards = leagueAwards != null 
+            ? leagueAwards.stream().filter(a -> a.getYear() == currentSeason).toList() 
+            : new ArrayList<>();
+        
+        List<Trade> seasonTrades = trades != null 
+            ? trades.stream().filter(t -> t.getSeason() == currentSeason).toList() 
+            : new ArrayList<>();
+        
+        List<DraftedPlayer> seasonDrafts = draftPicks != null 
+            ? draftPicks.stream().filter(d -> d.getYear() == currentSeason).toList() 
+            : new ArrayList<>();
+        
+        SeasonSnapshot snapshot = SeasonSnapshot.createSnapshot(
+            currentSeason,
+            nhlRoster,
+            ahlRoster,
+            teamStats,
+            seasonAwards,
+            seasonTrades,
+            seasonDrafts,
+            futureDraftPicks != null ? new ArrayList<>(futureDraftPicks) : new ArrayList<>(),
+            capCeiling
+        );
+        
+        if (seasonHistory == null) {
+            seasonHistory = new ArrayList<>();
+        }
+        seasonHistory.add(snapshot);
+    }
+    
+    /**
+     * Decrements contract years for all players.
+     */
+    private void decrementContractYears() {
+        for (Player player : getAllPlayers()) {
+            if (player.getContract() != null && player.getContract().getTermInYears() > 0) {
+                player.getContract().setTermInYears(player.getContract().getTermInYears() - 1);
+            }
+        }
+    }
+    
+    /**
+     * Ages all players by one year.
+     */
+    private void agePlayersOneYear() {
+        for (Player player : getAllPlayers()) {
+            player.setAge(player.getAge() + 1);
+        }
+    }
+    
+    /**
+     * Adds draft picks for a future year.
+     */
+    private void addFutureDraftPicks(int year) {
+        if (futureDraftPicks == null) {
+            futureDraftPicks = new ArrayList<>();
+        }
+        for (int round = 1; round <= 7; round++) {
+            DraftPick pick = new DraftPick(year, round);
+            pick.setCurrentOwner(selectedNHLTeam != null ? selectedNHLTeam.getName() : "Own");
+            pick.setOriginalTeam(selectedNHLTeam != null ? selectedNHLTeam.getName() : "Own");
+            futureDraftPicks.add(pick);
+        }
+    }
+    
+    /**
+     * Calculates total cap hit for the NHL roster.
+     */
+    public double getTotalCapHit() {
+        if (selectedNHLTeam == null || selectedNHLTeam.getRoster() == null) {
+            return 0.0;
+        }
+        return selectedNHLTeam.getRoster().stream()
+            .mapToDouble(Player::getCapHit)
+            .sum();
+    }
+    
+    /**
+     * Gets remaining cap space.
+     */
+    public double getCapSpace() {
+        return capCeiling - getTotalCapHit();
+    }
+    
+    /**
+     * Gets players with expiring contracts for a given year.
+     */
+    public List<Player> getExpiringContracts(int year) {
+        return getAllPlayers().stream()
+            .filter(p -> p.getContract() != null && 
+                        p.getContract().getExpirationYear() == year)
+            .toList();
+    }
+    
+    /**
+     * Gets draft picks for a specific year.
+     */
+    public List<DraftPick> getDraftPicksForYear(int year) {
+        if (futureDraftPicks == null) return new ArrayList<>();
+        return futureDraftPicks.stream()
+            .filter(p -> p.getYear() == year)
+            .sorted((a, b) -> a.getRound() - b.getRound())
+            .toList();
+    }
+    
+    /**
+     * Records a trade.
+     */
+    public void recordTrade(Trade trade) {
+        if (trades == null) {
+            trades = new ArrayList<>();
+        }
+        trade.setSeason(currentSeason);
+        trades.add(trade);
+    }
+    
+    /**
+     * Records an award.
+     */
+    public void recordAward(Award award) {
+        if (leagueAwards == null) {
+            leagueAwards = new ArrayList<>();
+        }
+        award.setYear(currentSeason);
+        leagueAwards.add(award);
+    }
+    
+    /**
+     * Records a drafted player.
+     */
+    public void recordDraftPick(DraftedPlayer draftedPlayer) {
+        if (draftPicks == null) {
+            draftPicks = new ArrayList<>();
+        }
+        draftedPlayer.setYear(currentSeason);
+        draftPicks.add(draftedPlayer);
+        
+        // Remove the used pick from future picks
+        if (futureDraftPicks != null) {
+            futureDraftPicks.removeIf(p -> 
+                p.getYear() == currentSeason && p.getRound() == draftedPlayer.getRound());
+        }
+    }
+    
+    /**
+     * Gets all AHL/prospect players.
+     */
+    public List<Player> getProspects() {
+        List<Player> prospects = new ArrayList<>();
+        if (selectedAHLTeam != null && selectedAHLTeam.getRoster() != null) {
+            prospects.addAll(selectedAHLTeam.getRoster());
+        }
+        return prospects;
+    }
+    
+    /**
+     * Gets unsigned draft picks.
+     */
+    public List<DraftedPlayer> getUnsignedDraftees() {
+        if (draftPicks == null) return new ArrayList<>();
+        return draftPicks.stream()
+            .filter(d -> !d.isSignedToContract())
+            .toList();
+    }
+    
+    /**
+     * Gets the number of Stanley Cups won.
+     */
+    public int getStanleyCupCount() {
+        if (seasonHistory == null) return 0;
+        return (int) seasonHistory.stream()
+            .filter(SeasonSnapshot::wonStanleyCup)
+            .count();
+    }
+    
+    /**
+     * Completes the franchise and marks it as finished.
+     */
+    public void completeFranchise() {
+        archiveSeason();
+        franchiseCompleted = true;
+        franchiseCompletedSeason = currentSeason;
     }
 
     /**

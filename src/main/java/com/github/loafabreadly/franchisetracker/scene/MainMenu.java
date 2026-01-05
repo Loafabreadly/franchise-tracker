@@ -50,7 +50,7 @@ public class MainMenu extends Panel {
             TextBox nhlTeamBox = new TextBox().setValidationPattern(Pattern.compile(".*")).setPreferredSize(new TerminalSize(30, 1));
             TextBox ahlTeamBox = new TextBox().setValidationPattern(Pattern.compile(".*")).setPreferredSize(new TerminalSize(30, 1));
             TextBox gmName = new TextBox().setValidationPattern(Pattern.compile(".*")).setPreferredSize(new TerminalSize(30, 1));
-            TextBox seasonBox = new TextBox().setValidationPattern(Pattern.compile("\\d{4}")).setPreferredSize(new TerminalSize(6, 1));
+            TextBox seasonBox = new TextBox().setValidationPattern(Pattern.compile("\\d{0,4}")).setPreferredSize(new TerminalSize(6, 1));
             createPanel.addComponent(new Label("NHL Team Name:"));
             createPanel.addComponent(nhlTeamBox);
             createPanel.addComponent(new Label("AHL Affiliate Name:"));

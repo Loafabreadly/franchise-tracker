@@ -35,22 +35,82 @@ public class Game extends Panel {
         addComponent(new Label("=== " + tracker.getSelectedNHLTeam().getName() + " ==="));
         addComponent(new Label("GM: " + tracker.getGeneralManagerName()));
         addComponent(new Label("Season: " + tracker.getCurrentSeason()));
+        String capInfo = String.format("Cap: $%.1fM / $%.1fM", tracker.getTotalCapHit(), tracker.getCapCeiling());
+        addComponent(new Label(capInfo));
         addComponent(new EmptySpace());
-               
-        addComponent(new Button("Season Stats & Progression", () -> {
-            window.setComponent(new SeasonStatsEditor(tracker, screen, window, logger, this));
+        
+        // --- Roster & Players ---
+        addComponent(new Label("--- Roster & Players ---"));
+        addComponent(new Button("Edit Players", () -> {
+            window.setComponent(new PlayerEditor(tracker, screen, window, logger, this));
         }));
 
         addComponent(new Button("View/Edit Lineup", () -> {
             window.setComponent(new LineupEditor(tracker, screen, window, logger, this));
         }));
 
-        addComponent(new Button("Edit Players", () -> {
-            window.setComponent(new PlayerEditor(tracker, screen, window, logger, this));
-        }));
-
         addComponent(new Button("View Roster Summary", () -> {
             showRosterSummary(tracker, screen, window, logger);
+        }));
+
+        addComponent(new Button("Prospect Tracker", () -> {
+            window.setComponent(new ProspectTracker(tracker, screen, window, logger, this));
+        }));
+
+        addComponent(new EmptySpace());
+
+        // --- Season & Stats ---
+        addComponent(new Label("--- Season & Stats ---"));
+        addComponent(new Button("Season Stats & Progression", () -> {
+            window.setComponent(new SeasonStatsEditor(tracker, screen, window, logger, this));
+        }));
+
+        addComponent(new Button("Stats Hub (Visualizations)", () -> {
+            window.setComponent(new StatsHub(tracker, screen, window, logger, this));
+        }));
+
+        addComponent(new Button("Season History Browser", () -> {
+            window.setComponent(new SeasonHistory(tracker, screen, window, logger, this));
+        }));
+
+        addComponent(new EmptySpace());
+
+        // --- Contracts & Cap ---
+        addComponent(new Label("--- Contracts & Cap ---"));
+        addComponent(new Button("Contract Editor", () -> {
+            window.setComponent(new ContractEditor(tracker, screen, window, logger, this));
+        }));
+
+        addComponent(new Button("Cap Dashboard", () -> {
+            window.setComponent(new CapDashboard(tracker, screen, window, logger, this));
+        }));
+
+        addComponent(new EmptySpace());
+
+        // --- Draft, Trades, Awards ---
+        addComponent(new Label("--- Draft, Trades, Awards ---"));
+        addComponent(new Button("Draft Manager", () -> {
+            window.setComponent(new DraftManager(tracker, screen, window, logger, this));
+        }));
+
+        addComponent(new Button("Trade Log", () -> {
+            window.setComponent(new TradeLog(tracker, screen, window, logger, this));
+        }));
+
+        addComponent(new Button("Award Manager", () -> {
+            window.setComponent(new AwardManager(tracker, screen, window, logger, this));
+        }));
+
+        addComponent(new EmptySpace());
+
+        // --- Franchise Management ---
+        addComponent(new Label("--- Franchise Management ---"));
+        addComponent(new Button("Import / Export Data", () -> {
+            window.setComponent(new ImportExport(tracker, screen, window, logger, this));
+        }));
+
+        addComponent(new Button("Franchise Wrap-Up", () -> {
+            window.setComponent(new FranchiseWrapUp(tracker, screen, window, logger, this));
         }));
 
         addComponent(new EmptySpace());
